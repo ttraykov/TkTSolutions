@@ -128,6 +128,7 @@
   const stage = $('#cube-stage');
   const cube = $('#cube');
   if (stage && cube) {
+    const mobileCube = window.matchMedia('(max-width: 630px)');
     let rotationX = -25;
     let rotationY = -34;
     let dragging = false;
@@ -138,6 +139,7 @@
     let inView = true;
 
     function render(time) {
+      if (mobileCube.matches) { last = 0; frame = null; return; }
       if (!dragging && !reduceMotion.matches && inView) {
         if (last) rotationY += Math.min(time - last, 50) * .012;
         rotationX = -25 + Math.sin(time * .00045) * 7;
@@ -147,14 +149,18 @@
       if (!reduceMotion.matches) frame = requestAnimationFrame(render);
     }
     if (reduceMotion.matches) cube.style.transform = `rotateX(${rotationX}deg) rotateY(${rotationY}deg)`;
-    else frame = requestAnimationFrame(render);
+    else if (!mobileCube.matches) frame = requestAnimationFrame(render);
+    mobileCube.addEventListener?.('change', () => {
+      last = 0;
+      if (!mobileCube.matches && frame === null && !reduceMotion.matches) frame = requestAnimationFrame(render);
+    });
 
     if ('IntersectionObserver' in window) {
       const cubeObserver = new IntersectionObserver(([entry]) => { inView = !!entry?.isIntersecting; last = 0; }, { threshold: 0 });
       cubeObserver.observe(stage);
     }
     stage.addEventListener('pointerdown', (event) => {
-      if (event.button !== 0) return;
+      if (event.button !== 0 || mobileCube.matches) return;
       dragging = true;
       px = event.clientX;
       py = event.clientY;

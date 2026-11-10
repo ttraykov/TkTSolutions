@@ -160,3 +160,15 @@
 
 /* Align the infinity mark with the vertical annotation; a 180-degree turn alone looks unchanged. */
 .cube-label-left .cube-infinity{display:inline-block;transform:rotate(90deg);transform-origin:center;vertical-align:middle}
+
+/* v18: Safari-safe mobile cube. Keep live 3D geometry on wider screens.
+   iOS Safari can incorrectly composite 26 nested preserve-3d blocks inside a
+   scaled ancestor, creating apparent holes or detached faces. On phones we
+   show the same artwork as a high-resolution transparent render instead. */
+.cube-mobile-render{display:none}
+@media(max-width:630px){
+  .cube-stage{cursor:default;touch-action:auto}
+  .cube-stage:active{cursor:default}
+  .cube-stage .cube{display:none!important}
+  .cube-mobile-render{display:block;width:100%;height:100%;object-fit:contain;position:relative;z-index:1;pointer-events:none;filter:drop-shadow(0 14px 14px rgba(0,0,0,.14))}
+}
